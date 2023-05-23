@@ -65,18 +65,35 @@ capitalize <- function(string) {
 }
 
 #' @export png.labeller
-png.labeller <- labeller(
-  vore = capitalize,
-  # conservation = conservation_status,
-  conservation2 = label_wrap_gen(10),
-  .default = label_both
-)
+png.labeller <- function(){
+  if(FALSE){
+    library(tidyverse)
+    iris %>% ggplot() +
+      geom_point(aes(Sepal.Length, Sepal.Width)) +
+      facet_grid(~Species, labeller = png.labeller())
+  }
+  
+  ggplot2::labeller(
+    vore = capitalize,
+    # conservation = conservation_status,
+    conservation2 = ggplot2::label_wrap_gen(10),
+    .default = ggplot2::label_both
+  )
+}
 # usage: facet_grid( Group1~Group2, labeller = png.labeller )
 
 
 # For library(patchwork)
 #' @export png.plot.label
-png.plot.label <- function(label, angle) {
+png.plot.label <- function(label, angle=0) {
+  if(FALSE){
+    library(patchwork)
+    p1 <- iris %>% filter(Species == "setosa") %>% ggplot() +
+      geom_point(aes(Sepal.Length, Sepal.Width))
+    (png.plot.label("setosa") / p1) + plot_layout(heights = c(1, 10))
+
+    ggsave(filename=png.file.generate_filename("png.plot.label.png"))
+  }
   # usage: png.plot.label("LA", 0)
   ggplot() + 
     geom_text(aes(x = 0, y = 0, label = label), size = 6, fontface = 2, angle=angle) + 
@@ -414,7 +431,7 @@ png.plot.upset <- function(List){
 }
 
 
-#' @export png.plot.par
+#' @export png.plot.par_example
 png.plot.par_example <- function(){
   pdf(file=png.file.generate_filename("example_of_par"), width=10, height=10)
   png.par <- par(mfrow = c(2,2),
