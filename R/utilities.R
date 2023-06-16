@@ -1,3 +1,17 @@
+#' @export png.file.generate_filename
+png.file.generate_filename <- function(prefix, ext = "png") {
+  i <- 1
+  while (TRUE) {
+    new_filename <- paste0(prefix, "_", i, ".", ext)
+    if (!file.exists(new_filename)) {
+      break
+    }
+    i <- i + 1
+  }
+  return(new_filename)
+}
+
+
 #' @export png.str.remove_extension
 png.str.remove_extension <- function(path){
   sub("([^.]+)\\.[[:alnum:]]+$", "\\1", path)
@@ -14,12 +28,6 @@ png.str.extract_last_dir <- function(path){
   # path <- "/Users/png/Documents/6. Yonsei/1. Mesh3d/data/2826-cut2_poly"
   strsplit(path, "/")[[1]] %>% {.[length(.)]}
 }
-
-#' @export `%_%`
-`%_%` <- function(x, y) {
-  paste0(x, y)
-}
-
 
 
 #' @importFrom gtools mixedorder

@@ -1,17 +1,3 @@
-#' @export png.file.generate_filename
-png.file.generate_filename <- function(prefix, ext = "png") {
-  i <- 1
-  while (TRUE) {
-    new_filename <- paste0(prefix, "_", i, ".", ext)
-    if (!file.exists(new_filename)) {
-      break
-    }
-    i <- i + 1
-  }
-  return(new_filename)
-}
-
-
 #' @export png.plot.save_figure
 png.plot.save_figure <- function(expr, file=png.file.generate_filename("Figure"), print=T, save=T, ...){
   if(FALSE){
@@ -344,7 +330,7 @@ png.venndiagram <- function(set.list, ...){
   library(eulerr)
   
   venn.mat <- VennDiagram::get.venn.partitions(set.list) %>% 
-    select(1:length(set.list), count = ..count..) %>% 
+    dplyr::select(1:length(set.list), count = ..count..) %>% 
     {apply(., 1, function(x) replicate( x[length(x)], x[-length(x)] ) )} %>% 
     do.call("cbind", .) %>% t
   
@@ -501,4 +487,15 @@ png.plot.margin_example <- function(){
   mtext("Line 1", side=1, line=1, adj=0.0, cex=1, col="blue", outer=TRUE)  
   mtext("Line 2", side=1, line=2, adj=0.0, cex=1, col="blue", outer=TRUE)  
   box("outer", col="blue") 
+}
+
+
+
+
+lowerFn <- function(data, mapping, method = "lm", ...) {
+  p <- ggplot(data = data, mapping = mapping) +
+    geom_point(alpha=0.4) +
+    stat_smooth(method = method, ...) +
+    theme_bw()
+  p
 }
