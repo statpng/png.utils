@@ -499,3 +499,63 @@ lowerFn <- function(data, mapping, method = "lm", ...) {
     theme_bw()
   p
 }
+
+
+#' @export
+png.scatter3d <- function(df, angle=120, cex=0.5, pch=18, range=TRUE, ...){
+  library(scatterplot3d)
+  x=df[,1]
+  y=df[,2]
+  z=df[,3]
+  
+  if(range){
+    xlim=c(min(x),max(x))
+    ylim=c(min(y),max(y))
+    zlim=c(min(z),max(z))
+  } else {
+    xlim=c(0,1)
+    ylim=c(0,1)
+    zlim=c(0,1)
+  }
+  
+  scatterplot3d(x,y,z, pch=pch, angle=angle, color="red", cex.symbols=cex,
+                xlim=xlim,
+                ylim=ylim,
+                zlim=zlim, ...)
+  
+}
+
+
+
+#' @export
+png.plotly.scatter3d <- function(df, size = 2, unit=FALSE, ...) {
+  library(plotly)
+  library(dplyr)
+  
+  if(FALSE){
+    df <- matrix(runif(10*3,0,1),10,3)
+    unit <- TRUE
+    size=2
+  }
+  colnames(df) <- c("x", "y", "z")
+  
+  if(unit){
+    p <- plot_ly(as.data.frame(df),
+                 x = ~x, y = ~y, z = ~z, 
+                 type = 'scatter3d', 
+                 marker = list(symbol = 3, size = size, color = "grey10",
+                               line = list(color="grey10", width=1), ... ) ) %>%
+      layout( scene = list(xaxis = list( range=c(-1,1) ),
+                           yaxis = list( range=c(-1,1) ),
+                           zaxis = list( range=c(-1,1) ))
+      )
+  } else {
+    p <- plot_ly(x = ~x, y = ~y, z = ~z, type = 'scatter3d', data = as.data.frame(df), 
+                 marker = list(symbol = 3, size = size, color = "grey70",
+                               line = list(color="grey10", width=1), ... ) )
+    
+  }
+  
+  
+  return(p)
+}
