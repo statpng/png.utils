@@ -13,7 +13,6 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Suggests: 
-VignetteBuilder: knitr
 Imports:
     assertthat,
     data.table,
@@ -22,6 +21,10 @@ Imports:
     purrr,
     tibble,
     tidyr,
-    stringr
+    stringr,
+    ComplexUpset,
+    eulerr,
+    ggplot2,
+    gtools
 Depends: 
     R (>= 4.0)
