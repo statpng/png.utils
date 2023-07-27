@@ -186,3 +186,15 @@ png.sim.split <- function(nrep, nsplit = 10){
   AA
 }
 
+
+
+
+#' @export png.str.sort
+png.str.sort <- function(x, prefix){
+  if(FALSE){
+    x <- c("gppca","gppca_qp_0.1","gppca_qp_0.3","gppca_qp_0.5","multiplicative_1.0e-10","multiplicative_2.5e-09","multiplicative_6.2e-08","multiplicative_1.5e-06","multiplicative_3.9e-05","ppca","ppca_qp_0.1","ppca_qp_0.3","ppca_qp_0.5","simple_1.0e-10","simple_2.5e-09","simple_6.2e-08","simple_1.5e-06","simple_3.9e-05")
+    prefix=c("^simple", "^multiplicative", "^ppca$", "^gppca$", "^ppca_qp_\\d", "^gppca_qp_\\d")
+  }
+  
+  purrr::map(prefix, ~ gtools::mixedsort(x[grepl(.x, x)]) ) %>% unlist
+}
