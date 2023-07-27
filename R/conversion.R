@@ -12,3 +12,13 @@ png.grid2df <- function(out.list, grid){
     tidyr::gather(measure, value, -grid.columns)
   
 }
+
+
+#' @export png.mat2vec
+png.mat2vec <- function(mat){
+  n=nrow(mat); p=ncol(mat)
+  new.names <- paste0(rep(colnames(mat), each=n), "//", rep(rownames(mat), p))
+  out <- as.vector(mat)
+  names(out) <- new.names
+  out
+}
