@@ -198,3 +198,11 @@ png.str.sort <- function(x, prefix){
   
   purrr::map(prefix, ~ gtools::mixedsort(x[grepl(.x, x)]) ) %>% unlist
 }
+
+
+#' @export png.function.GetArguments
+png.function.GetArguments <- function(...){
+  x <- substitute(...())
+  if(class(x[[1]]) == "call")  sapply(x[[1]][-1] , deparse)
+  else sapply(x , deparse)
+}
