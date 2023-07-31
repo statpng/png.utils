@@ -9,7 +9,7 @@ png.grid2df <- function(out.list, grid){
   grid.columns <- colnames(grid)
   
   cbind(grid, do.call("rbind", out.list)) %>% 
-    tidyr::gather(measure, value, -grid.columns)
+    tidyr::gather(x, value, -grid.columns)
   
 }
 
@@ -21,4 +21,29 @@ png.mat2vec <- function(mat){
   out <- as.vector(mat)
   names(out) <- new.names
   out
+}
+
+
+#' @export png.combine.matlist2grid
+png.combine.matlist2grid <- function(out.list, grid, wh.removed=NULL){
+  if(is.null(wh.removed)){
+    wh.removed <- which( !sapply(out.list, function(x) nrow(x)>2) )
+  }
+  
+  mat <- out.list[[1]]
+  
+  dim <- append( apply(grid,2,function(x) length(unique(x))), c(x=nrow(mat), y=ncol(mat)) )
+  dimnames <- append( apply(grid,2,function(x) unique(x)), list(x=rownames(mat), y=colnames(mat)) )
+  
+  out.array <- array(NA, dim=dim, dimnames=dimnames)
+  for( i in 1:nrow(grid) ){
+    if(i == wh.removed) next
+    wh <- purrr::map2(dimnames[1:ncol(grid)], grid[i,], function(x,y) which(x %in% y))
+    out.array[wh[[1]],wh[[2]],wh[[3]],wh[[4]],,] <- out.list[[i]]
+  }
+  
+  out.df <- plyr::adply(out.array, 1:length(dim(out.array)))
+  colnames(out.df)[ncol(out.df)] <- "value"
+  
+  out.df
 }
