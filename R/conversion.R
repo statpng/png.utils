@@ -47,3 +47,27 @@ png.combine.matlist2grid <- function(out.list, grid, wh.removed=NULL){
   
   out.df
 }
+
+
+
+#' @export png.unlist
+png.unlist <- function(LIST, level=1){
+  f <- function(x){
+    if(is.atomic(x)){
+      list(x)
+    }else{
+      x
+    }
+  }
+  
+  count <- 0
+  
+  count=count+1
+  out <- unlist(lapply(LIST, f), recursive=FALSE)
+  
+  while(  count<level  ){
+    count <- count+1
+    out <- unlist(lapply(out, f), recursive=FALSE)
+  }
+  out
+}
