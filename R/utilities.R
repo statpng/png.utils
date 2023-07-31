@@ -221,3 +221,21 @@ png.list.replace <- function(params, LIST){
   }
   params
 }
+
+
+#' @export png.list.flatten
+png.list.flatten <- function(L){
+  f <- function(x){
+    if(is.atomic(x)){
+      list(x)
+    }else{
+      x
+    }
+  }
+  
+  out <- unlist(lapply(L, f), recursive=FALSE)
+  while(any(sapply(out, is.list))){
+    out <- png.list.flatten(out)
+  }
+  out
+}
