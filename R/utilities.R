@@ -206,3 +206,18 @@ png.function.GetArguments <- function(...){
   if(class(x[[1]]) == "call")  sapply(x[[1]][-1] , deparse)
   else sapply(x , deparse)
 }
+
+
+
+#' @export png.list.replace
+png.list.replace <- function(params, LIST){
+  # list_to_be_replaced
+  if(FALSE){
+    LIST=list(kappa.seq=1e-2, gamma.seq=0.5)
+  }
+  
+  for( i in 1:length(LIST) ){
+    params[ names(LIST)[i] ] <- LIST[[i]]
+  }
+  params
+}
