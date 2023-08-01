@@ -62,8 +62,8 @@ png.unlist <- function(LIST, level=1){
   
   count <- 0
   
-  # count=count+1
-  # out <- unlist(lapply(LIST, f), recursive=FALSE)
+  count=count+1
+  out <- unlist(lapply(LIST, f), recursive=FALSE)
   
   while(  count<level  ){
     count <- count+1
