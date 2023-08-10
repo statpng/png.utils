@@ -45,6 +45,7 @@ png.plot.save_figure <- function(expr, file=png.file.generate_filename("Figure")
 
 
 #' @import ggplot2
+#' @export capitalize
 capitalize <- function(string) {
   substr(string, 1, 1) <- toupper(substr(string, 1, 1))
   string
@@ -229,6 +230,7 @@ png.plot.multhist <- function (x, beside = TRUE, freq = NULL, probability = !fre
 
 
 #' @import tidyr
+#' @export png.plot.test_normality
 png.plot.test_normality <- function(x, test=c("shapiro", "ks"), bestNormalize=FALSE){
   if(FALSE){
     hist_ordinary <- png.plot.test_normality(moonBook::acs$TG, test="shapiro", bestNormalize = FALSE)
@@ -501,7 +503,7 @@ lowerFn <- function(data, mapping, method = "lm", ...) {
 }
 
 
-#' @export
+#' @export png.scatter3d
 png.scatter3d <- function(df, angle=120, cex=0.5, pch=18, range=TRUE, ...){
   library(scatterplot3d)
   x=df[,1]
@@ -527,7 +529,7 @@ png.scatter3d <- function(df, angle=120, cex=0.5, pch=18, range=TRUE, ...){
 
 
 
-#' @export
+#' @export png.plotly.scatter3d
 png.plotly.scatter3d <- function(df, size = 2, unit=FALSE, ...) {
   library(plotly)
   library(dplyr)
@@ -559,3 +561,18 @@ png.plotly.scatter3d <- function(df, size = 2, unit=FALSE, ...) {
   
   return(p)
 }
+
+
+
+
+
+
+#' @export png.scale_y_log10
+png.scale_y_log10 <- function(){
+  scale_y_continuous(trans='log10',
+                   breaks=scales::trans_breaks('log10', function(x) 10^x),
+                   labels=scales::trans_format('log10', scales::math_format(10^.x)))
+}
+  
+  
+  
