@@ -72,7 +72,7 @@ png.labeller <- function(){
 
 # For library(patchwork)
 #' @export png.plot.label
-png.plot.label <- function(label, angle=0) {
+png.plot.label <- function(label, angle=0, ...) {
   if(FALSE){
     library(patchwork)
     p1 <- iris %>% filter(Species == "setosa") %>% ggplot() +
@@ -83,7 +83,7 @@ png.plot.label <- function(label, angle=0) {
   }
   # usage: png.plot.label("LA", 0)
   ggplot() + 
-    geom_text(aes(x = 0, y = 0, label = label), size = 6, fontface = 2, angle=angle) + 
+    geom_text(aes(x = 0, y = 0, label = label), size = 6, fontface = 2, angle=angle, ...) + 
     theme_void()
 }
 
@@ -576,3 +576,13 @@ png.scale_y_log10 <- function(){
   
   
   
+
+
+#' @export png.colors
+png.colors <- function(n){
+  Taxa_cols <- brewer.pal.info[brewer.pal.info$category == 'qual',] %>% 
+    # {.[c("Set1","Pastel1","Dark2","Set3"),]} %>% 
+    {.[c("Set1","Set3","Pastel1","Dark2","Pastel2", "Set2", "Accent"),]} %>%
+    { unlist(mapply(brewer.pal, .$maxcolors, rownames(.))) }
+  Taxa_cols[1:n]
+}
