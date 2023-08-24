@@ -567,19 +567,31 @@ png.plotly.scatter3d <- function(df, size = 2, unit=FALSE, ...) {
 
 
 
-#' @export png.scale_y_log10
-png.scale_y_log10 <- function(){
+#' @export png.ggplot.scale_y_log10
+png.ggplot.scale_y_log10 <- function(){
   scale_y_continuous(trans='log10',
                    breaks=scales::trans_breaks('log10', function(x) 10^x),
                    labels=scales::trans_format('log10', scales::math_format(10^.x)))
 }
   
-  
-  
+
+#' @export png.ggplot.remove_xaxis
+png.ggplot.remove_xaxis <- function(title=TRUE){
+    if(title){
+      theme(axis.text.x=element_blank(),
+            axis.ticks.x=element_blank())
+    } else {
+      theme(axis.title.x=element_blank(),
+            axis.text.x=element_blank(),
+            axis.ticks.x=element_blank())
+    }
+}
 
 
 #' @export png.colors
 png.colors <- function(n){
+  library(RColorBrewer)
+  
   Taxa_cols <- brewer.pal.info[brewer.pal.info$category == 'qual',] %>% 
     # {.[c("Set1","Pastel1","Dark2","Set3"),]} %>% 
     {.[c("Set1","Set3","Pastel1","Dark2","Pastel2", "Set2", "Accent"),]} %>%
