@@ -568,9 +568,9 @@ png.plotly.scatter3d <- function(df, size = 2, unit=FALSE, ...) {
 
 
 #' @export png.ggplot.scale_y_log10
-png.ggplot.scale_y_log10 <- function(){
+png.ggplot.scale_y_log10 <- function(n){
   scale_y_continuous(trans='log10',
-                   breaks=scales::trans_breaks('log10', function(x) 10^x),
+                   breaks=scales::trans_breaks('log10', function(x) 10^x, n=n),
                    labels=scales::trans_format('log10', scales::math_format(10^.x)))
 }
   
