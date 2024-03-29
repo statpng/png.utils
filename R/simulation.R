@@ -55,6 +55,10 @@ png.sim.run <- function(GRID, sim_func, fit_func, result_func, n.results=1, colu
     library(png.vMF)
     
     sim_func <- function(n, sd, tau){
+      if(FALSE){
+        do.call(sim_func, list(n=10, sd=5, tau=10))
+      }
+      
       sim.glm_vmf(n=n, p=1, q=3, sd=sd, mu=c(0,0,tau), orthogonal=T)
     }
     
