@@ -164,7 +164,23 @@ png.sim.run <- function(GRID, sim_func, fit_func, result_func, n.results=1, colu
 
 
 
+#' @export png.getwd
+png.getwd <- function(){
+  dirname(rstudioapi::getSourceEditorContext()$path)
+}
 
 
+#' @export png.sim.ListFilesExtract
+png.sim.ListFilesExtract <- function(ListFiles, ...){
+  
+  # pattern = "II=(\\d+)_ii=(\\d+)"
+  # group = c(1,2)
+  # ListFiles <- list.files(path %+% "/run", ".RData", full.names=TRUE) %>% gtools::mixedsort()
+  
+  # ListFiles_II <- stringr::str_extract(ListFiles, "II=(\\d+)_ii=(\\d+)", group=c(1,2))
+  ListFiles2 <- stringr::str_extract(ListFiles, ...)
+  FinalIndex <- ListFiles2 %>% { tapply(.[,2], .[,1], function(x) max(as.numeric(x))) }
+  ListFiles[ sapply( FinalIndex, function(x) which( ListFiles2[,2] %in% x ) ) ]
+}
 
 
