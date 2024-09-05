@@ -184,3 +184,100 @@ png.sim.ListFilesExtract <- function(ListFiles, ...){
 }
 
 
+
+
+
+
+
+
+#' @export png.grid2array
+png.grid2array <- function(grid){
+  dims <- sapply(grid, function(x) length(unique(x)))
+  grid2array <- array(NA, dim = dims, dimnames = lapply(grid, unique))
+  grid2array
+}
+
+#' @export png.array2df
+png.array2df <- function(arr){
+  as.data.frame.table(arr, responseName = "value")
+}
+
+
+#' @export png.abind
+png.abind <- function(arr, dim.list){
+  # dim.list = list( measure=c("wald", "pvalue") )
+  
+  for( i in 1:length(dim.list) ){
+    dim <- dim.list[[i]]
+    if( i == 1 ){
+      new_arr <- abind::abind( lapply(dim, function(x) arr), along = length(dim(arr))+1 )
+    } else {
+      new_arr <- abind::abind( lapply(dim, function(x) new_arr), along = length(dim(new_arr))+1 )
+    }
+  }
+  
+  dimnames(new_arr) <- c(dimnames(arr), dim.list)
+  
+  new_arr
+}
+
+
+
+#' @export png.sim.grid2index
+png.sim.grid2index <- function(grid, arr){
+  target_cols <- colnames(grid)[ colnames(grid) %in% names(dimnames(arr)) ]
+  
+  colname <- target_cols[1]
+  
+  result.mat <- as.data.frame(matrix(NA, nrow(grid), ncol(grid)))
+  colnames(result.mat) <- colnames(grid)
+  for( i in 1:nrow(grid) ){
+    for( colname in target_cols ){
+      cur_value <- unique(grid[i,colname])
+      total_values <- dimnames(arr)[[ which(names(dimnames(arr)) == colname) ]]
+      
+      result.mat[i,colname] <- which( total_values %in% cur_value )
+    }
+  }
+  
+  result.mat
+  
+}
+
+
+
+
+
+
+#' @export png.array.combine
+png.array.combine <- function(...) {
+  if(FALSE){
+    # 예시 array 생성
+    arr1 <- arr2 <- arr3 <- array(NA, dim=c(3,3,3))
+    
+    # 각 array에 값 할당 (예시)
+    arr1[1,1,1] <- 1
+    arr2[2,2,2] <- 2
+    arr3[3,3,3] <- 3
+    
+    png.array.combine(arr1, arr2, arr3)
+  }
+  
+  arrays <- list(...)
+  
+  # 모든 array가 같은 차원을 가지는지 확인
+  if (length(unique(lapply(arrays, dim))) != 1) {
+    stop("All arrays must have the same dimensions")
+  }
+  
+  # 결과 array 초기화
+  result <- arrays[[1]]
+  
+  # 각 array의 non-NA 값을 결과 array에 할당
+  for (arr in arrays) {
+    non_na <- !is.na(arr)
+    result[non_na] <- arr[non_na]
+  }
+  
+  return(result)
+}
