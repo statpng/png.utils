@@ -1,5 +1,5 @@
 #' @export png.file.generate_filename
-png.file.generate_filename <- function(prefix, ext = "png") {
+png.file.generate_filename <- function(prefix, ext = "pdf") {
   i <- 1
   while (TRUE) {
     new_filename <- paste0(prefix, "_", i, ".", ext)

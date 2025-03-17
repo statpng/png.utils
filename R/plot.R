@@ -1,5 +1,6 @@
+#' @importFrom extrafont embed_fonts
 #' @export png.plot.save_figure
-png.plot.save_figure <- function(expr, file=png.file.generate_filename("Figure"), print=T, save=T, ...){
+png.plot.save_figure <- function(expr, file=png.file.generate_filename("Figure", ext="pdf"), print=T, save=T, ...){
   if(FALSE){
     png.plot.save_figure("plot(1)")
   }
@@ -37,11 +38,61 @@ png.plot.save_figure <- function(expr, file=png.file.generate_filename("Figure")
     )
   }
   
-  #print?
-  if (print) eval(parse(text=expr))
-  invisible(NULL)
+  if( extension == "pdf" ){
+    extrafont::embed_fonts(file)
+  }
+    
   
-}	
+  #print?
+  # if(print) eval(parse(text=expr))
+  
+  
+  return(file)
+  
+}
+
+
+
+#' @export png.savePlotAsImage
+png.savePlotAsImage <- function(file=png.file.generate_filename("Figure", ext="eps"), height=500, width=500, ...){
+  
+  extension <- png.str.get_extension(file)
+  rstudioapi::savePlotAsImage(file, format=extension, height=height, width=width, ...)
+  
+  # if(extension == "eps") png.eps2pdf(file)
+  
+}
+
+
+
+
+#' @export png.eps2pdf
+png.eps2pdf <- function(epsfile, margin=3){
+  # ref: https://github.com/arni-magnusson/arni/blob/main/R/eps2pdf.R
+  
+  if(!file.exists(epsfile))
+    stop(epsfile, " not found. Please verify filename.")
+  
+  if(!is.null(margin)){
+    stdout <- tempfile(); on.exit(unlink(stdout))            # stdout -> garbage
+    stderr <- tempfile(); on.exit(unlink(stderr), add=TRUE)  # stderr -> bbox
+    system(paste("gs -dBATCH -dEPSCrop -dNOPAUSE -sDEVICE=bbox", epsfile,
+                 "1>", stdout, "2>", stderr))
+    tight <- readLines(stderr, encoding="latin1")  # R postscripts are latin1
+    numbers <- substring(tight[substring(tight,1,14)=="%%BoundingBox:"], 16)
+    ## E.g. 8 8 70 70
+    numbers <- paste(as.numeric(unlist(strsplit(numbers," ")))+
+                       c(-margin,-margin,+margin,+margin),collapse=" ")
+    ## E.g. 5 5 73 73
+    master <- readLines(epsfile, encoding="latin1")
+    master[substring(master,1,14)=="%%BoundingBox:"] <- paste("%%BoundingBox:",
+                                                              numbers)
+    write(master, epsfile)
+  }
+  system(paste("2pdf",epsfile))
+  
+  invisible(NULL)
+}
 
 
 #' @import ggplot2
