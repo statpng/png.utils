@@ -1,3 +1,8 @@
+#' @importFrom zeallot "%<-%"
+#' @importFrom zeallot "%->%"
+#' @export `%<-%`
+#' @export `%->%`
+
 #' @export `%_%`
 `%_%` <- function(x, y) {
   paste(x, y, sep="_")
