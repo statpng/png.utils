@@ -41,3 +41,32 @@ png.remove_outliers <- function(data, value_var, multiplier = 5) {
       (!!value_var) <= stats::quantile(!!value_var, 0.75) + multiplier * IQR(!!value_var)
     )
 }
+
+
+
+
+
+
+
+
+
+
+
+#' @export png.filter.is_not_outlier_iqr
+png.filter.is_not_outlier_iqr <- function(x, const = 1.5) {
+  # 벡터 x 가 numeric 인지 확인 (오류 방지)
+  if (!is.numeric(x)) {
+    stop("Input 'x' must be a numeric vector.")
+  }
+  
+  # 사분위수 및 IQR 계산 (NA 값 제외)
+  quartiles <- quantile(x, probs = c(.25, .75), na.rm = TRUE)
+  IQR_val <- IQR(x, na.rm = TRUE) # IQR() 함수 사용
+  
+  # 하한 및 상한 계산
+  Lower <- quartiles[1] - const * IQR_val
+  Upper <- quartiles[2] + const * IQR_val
+  
+  # NA가 아니고, 하한과 상한 사이에 있는 값인지 여부를 반환 (TRUE = 이상치 아님, FALSE = 이상치 또는 NA)
+  !is.na(x) & x >= Lower & x <= Upper
+}
