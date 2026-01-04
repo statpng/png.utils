@@ -6,7 +6,7 @@ png.angle <- function(true, est){
   qt <- qr.Q(qr(true))
   qe <- qr.Q(qr(est))
   fit.svd <- svd( crossprod(qe, qt) )
-  theta <- acos(fit.svd$d |> round(12))
+  theta <- acos(fit.svd$d %>% round(12))
   
   # theta[1] * 180 / pi (in degree)
   list( max = theta[1] * 180 / pi, Grassmannian = norm( theta, "2" ) * 180 / pi )

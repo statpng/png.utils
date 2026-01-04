@@ -142,123 +142,6 @@ png.plot.label <- function(label, angle=0, ...) {
 
 
 
-#' @export png.mat_to_bar3d
-png.mat_to_bar3d <- function(){
-
-  # 필요한 패키지 설치 및 로드
-if (!require("plot3D")) {
-  install.packages("plot3D")
-  library(plot3D)
-}
-
-# 데이터 준비
-# W 값 (X축, 합)
-w_values <- c(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
-# U 값 (Y축, 곱)
-u_values <- c(1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 18, 20, 24, 25, 30, 36)
-
-# 경우의 수 매트릭스 (Z값, 막대 높이)
-# 행: U 값, 열: W 값
-# 먼저 0으로 채워진 매트릭스를 생성합니다.
-counts_matrix <- matrix(0, nrow = length(u_values), ncol = length(w_values),
-                        dimnames = list(as.character(u_values), as.character(w_values)))
-
-# 이미지에서 관찰된 데이터를 매트릭스에 입력합니다.
-# 출처: 사용자 제공 이미지 (PDF 원본 페이지 5에 해당 표 존재)
-counts_matrix["1", "2"] <- 1
-
-counts_matrix["2", "3"] <- 2
-
-counts_matrix["3", "4"] <- 2
-counts_matrix["4", "4"] <- 1
-
-counts_matrix["4", "5"] <- 2
-counts_matrix["6", "5"] <- 2 # U=6, W=5
-
-counts_matrix["5", "6"] <- 2
-counts_matrix["8", "6"] <- 2
-counts_matrix["9", "6"] <- 1
-
-counts_matrix["6", "7"] <- 2 # U=6, W=7
-counts_matrix["10", "7"] <- 2
-counts_matrix["12", "7"] <- 2
-
-counts_matrix["12", "8"] <- 2
-counts_matrix["15", "8"] <- 2
-counts_matrix["16", "8"] <- 1
-
-counts_matrix["18", "9"] <- 2
-counts_matrix["20", "9"] <- 2 # (예: 주사위 눈 (4,5) -> 합 W=9, 곱 U=20)
-
-counts_matrix["10", "10"] <- 2 # 이미지에 U=10, W=10 경우의 수가 2로 표시되어 있습니다.
-                               # (표준적인 두 주사위 합/곱으로는 이 값이 나오기 어렵지만, 이미지 데이터를 따릅니다.)
-counts_matrix["24", "10"] <- 2 # (예: (4,6) -> W=10, U=24)
-counts_matrix["25", "10"] <- 1 # (예: (5,5) -> W=10, U=25)
-
-counts_matrix["30", "11"] <- 2 # (예: (5,6) -> W=11, U=30)
-
-counts_matrix["36", "12"] <- 1 # (예: (6,6) -> W=12, U=36)
-
-
-
-
-z_mtx = counts_matrix
-
-# Define a function to add 3D bars
-add_3Dbar <- function(p, x,y,z, width=0.4) {
-   w <- width
-   add_trace(p, type="mesh3d",
-     x = c(x-w, x-w, x+w, x+w, x-w, x-w, x+w, x+w),
-     y = c(y-w, y+w, y+w, y-w, y-w, y+w, y+w, y-w),
-     z = c(0, 0, 0, 0, z, z, z, z),
-     i = c(7, 0, 0, 0, 4, 4, 2, 6, 4, 0, 3, 7),
-     j = c(3, 4, 1, 2, 5, 6, 5, 5, 0, 1, 2, 2),
-     k = c(0, 7, 2, 3, 6, 7, 1, 2, 5, 5, 7, 6),
-     facecolor = rep(toRGB(viridisLite::inferno(6)), each = 2)) 
-}
-
-# Draw the 3D histogram
-fig <- plot_ly()
-for (k1 in 1:nrow(z_mtx)) {
-  for (k2 in 1:ncol(z_mtx)) {
-     fig <- fig %>% add_3Dbar(k1,k2,z_mtx[k1,k2])
-  }
-}
-
-fig <- fig %>% layout(title = list(text = "W와 U의 결합 분포 (Interactive 3D Bar Chart)", y = 0.95), # 제목 위치 조정
-                      scene = list(
-                        yaxis = list(
-                            title = "W (합)",
-                            tickvals = 1:length(w_values), # x축 눈금을 w_values로 설정
-                            ticktext = as.character(w_values),
-                            tickfont = list(size = 12) # X축 눈금 글자 크기 조절
-                            ),
-                        xaxis = list(
-                            title = "U (곱)",
-                            tickvals = 1:length(u_values), # y축 눈금을 u_values로 설정
-                            ticktext = as.character(u_values),
-                            tickfont = list(size = 12) # X축 눈금 글자 크기 조절
-                            ),
-                        zaxis = list(title = "경우의 수 (Frequency)"),
-                        camera = list(eye = list(x=1.8, y=1.8, z=1.5))
-                      ),
-                      margin = list(l = 0, r = 0, b = 0, t = 50) # 상단 여백 조절
-                    )
-
-
-fig 
-
-# saveWidget(widget = fig, file = "interactive_3d_chart_R.html", selfcontained = TRUE)
-
-
-}
-
-
-
-
-
-
-
 
 
 #' @export png.plot.pairs_panel_linear
@@ -282,11 +165,78 @@ png.plot.pairs_panel_cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...
   }
   usr <- par("usr"); on.exit(par(usr))
   par(usr = c(0, 1, 0, 1))
-  r <- abs(cor(x, y))
+  r <- abs(cor(x, y, use="complete.obs"))
   txt <- format(c(r, 0.123456789), digits = digits)[1]
   txt <- paste0(prefix, txt)
   text(0.5, 0.5, txt, cex = 1.7, font = 4)
 }
+
+
+
+
+#' @title Scatter plot with Marginal Density Plots
+#' @description Creates a scatter plot with marginal density plots on the top and right.
+#'
+#' @param data A data frame.
+#' @param x_var String. The name of the variable for the x-axis.
+#' @param y_var String. The name of the variable for the y-axis.
+#' @param group_var String. The name of the variable for coloring and grouping.
+#' @param palette Optional. The color palette (e.g., "jco", "npg", "aaas").
+#' @param size Optional. Point size for the scatter plot.
+#' @param alpha Optional. Point alpha transparency for the scatter plot.
+#'
+#' @return A combined plot object (from cowplot).
+#'
+#' @export png.plot.scatter.marginal
+png.plot.scatter.marginal <- function(data, x_var, y_var, group_var, 
+                                    palette = "jco", alpha = 0.7,
+                                    ... ) {
+  library(ggpubr)
+  
+  ggscatterhist(
+    x = x_var, 
+    y = y_var,
+    color = group_var,    # 점 색상
+    fill = group_var,     # 밀도 플롯 채우기 (color와 맞추기)
+    palette = palette,
+    margin.plot = "density", # 여백 플롯을 "density"로 지정
+    margin.params = list(fill = group_var, color = group_var, alpha = alpha), # 밀도 플롯 설정
+    ...
+  )
+  
+  # library(ggpubr)
+  # library(cowplot)
+  # 
+  # # 1. Scatter plot colored by groups
+  # sp <- ggscatter(data, x = x_var, y = y_var,
+  #                 color = group_var, palette = palette,
+  #                 size = size, alpha = alpha) +
+  #   border()
+  # 
+  # # 2. Marginal density plot of x (top panel)
+  # xplot <- ggdensity(data, x_var, fill = group_var,
+  #                    palette = palette)
+  # 
+  # # 3. Marginal density plot of y (right panel)
+  # yplot <- ggdensity(data, y_var, fill = group_var, 
+  #                    palette = palette) +
+  #   rotate()
+  # 
+  # # 4. Cleaning the plots (as in the original code)
+  # sp <- sp + rremove("legend")
+  # yplot <- yplot + clean_theme() + rremove("legend")
+  # xplot <- xplot + clean_theme() + rremove("legend")
+  # 
+  # 
+  # # rel_widths = c(2,1)
+  # # rel_heights = c(1,2) 
+  # 
+  # # 5. Arranging the plot using cowplot
+  # plot_grid(xplot, NULL, sp, yplot, ncol = 2, align = "hv", 
+  #           rel_widths = rel_widths, rel_heights = rel_heights)
+}
+
+
 
 
 #' @export png.exam.histogram
@@ -774,5 +724,374 @@ png.colors <- function(n){
 
 
 
+#' @import plot3D
+#' @import plotly
+#' @export png.mat2bar3d
+png.mat2bar3d <- function(counts_matrix){
+  if(FALSE){ counts_matrix <- tab }
+  
+  # Define a function to add 3D bars
+  add_3Dbar <- function(p, x,y,z, width=0.4) {
+    w <- width
+    add_trace(p, type="mesh3d",
+              x = c(x-w, x-w, x+w, x+w, x-w, x-w, x+w, x+w),
+              y = c(y-w, y+w, y+w, y-w, y-w, y+w, y+w, y-w),
+              z = c(0, 0, 0, 0, z, z, z, z),
+              i = c(7, 0, 0, 0, 4, 4, 2, 6, 4, 0, 3, 7),
+              j = c(3, 4, 1, 2, 5, 6, 5, 5, 0, 1, 2, 2),
+              k = c(0, 7, 2, 3, 6, 7, 1, 2, 5, 5, 7, 6),
+              facecolor = rep(toRGB(viridisLite::inferno(6)), each = 2)) 
+  }
+  
+  # Draw the 3D histogram
+  fig <- plot_ly()
+  for (k1 in 1:nrow(counts_matrix)) {
+    for (k2 in 1:ncol(counts_matrix)) {
+      fig <- fig %>% add_3Dbar(k1,k2,counts_matrix[k1,k2])
+    }
+  }
+  
+  
+  fig <- fig %>% layout(#title = list(text = "W와 U의 결합 분포 (Interactive 3D Bar Chart)", y = 0.95), # 제목 위치 조정
+    scene = list(
+      xaxis = list(
+        title = names(dimnames(counts_matrix))[1]#,
+        # tickvals = 1:length(u_values), # x축 눈금을 w_values로 설정
+        # ticktext = as.character(u_values),
+        # tickfont = list(size = 12) # X축 눈금 글자 크기 조절
+      ),
+      yaxis = list(
+        title = names(dimnames(counts_matrix))[2]#,
+        # tickvals = 1:length(w_values), # y축 눈금을 u_values로 설정
+        # ticktext = as.character(w_values),
+        # tickfont = list(size = 12) # X축 눈금 글자 크기 조절
+      )#,
+      # zaxis = list(title = "경우의 수 (Frequency)"),
+      # camera = list(eye = list(x=1.8, y=1.8, z=1.5))
+    )#,
+    # margin = list(l = 0, r = 0, b = 0, t = 50) # 상단 여백 조절
+  )
+  fig
+}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Some Spaital Compositional plots ----
+tmp <- function(){
+  
+  # plotting
+  
+  
+  # 필요한 라이브러리 설치 및 로드
+  # install.packages("plotly")
+  # install.packages("tidyr")
+  # install.packages("ggplot2")
+  library(plotly)
+  library(tidyr)
+  library(ggplot2)
+  
+  # 1000개의 샘플(스팟)에 대한 가상 데이터 생성
+  set.seed(42)
+  n_samples <- 1000
+  df <- data.frame(
+    x = runif(n_samples, 0, 100),
+    y = runif(n_samples, 0, 100)
+  )
+  
+  # 공간적으로 패턴을 갖는 조성 데이터 생성
+  # (x,y) 좌표에 따라 세 feature의 비율이 달라지도록 설정
+  v1 <- exp(-((df$x - 20)^2 + (df$y - 80)^2) / 1000)
+  v2 <- exp(-((df$x - 80)^2 + (df$y - 80)^2) / 1000)
+  v3 <- exp(-((df$x - 50)^2 + (df$y - 20)^2) / 1000)
+  
+  total <- v1 + v2 + v3
+  df$f1 <- v1 / total
+  df$f2 <- v2 / total
+  df$f3 <- v3 / total
+  
+  # 데이터 확인
+  head(df)
+  #          x        y         f1         f2        f3
+  # 1 91.48060 83.54764 0.05739328 0.77112009 0.1714866
+  # 2 93.70754 21.35327 0.01083411 0.01955138 0.9696145
+  # 3 28.61395 65.55392 0.70889981 0.13881476 0.1522854
+  # 4 83.04476 53.94932 0.07603310 0.50151121 0.4224557
+  
+  
+  
+  
+  
+  {
+    # 1. 각 feature 비율(0-1)을 RGB 값(0-255)으로 변환하고, 16진수 색상 코드로 만듭니다.
+    df$rgb_color <- rgb(df$f1, df$f2, df$f3)
+    
+    # 2. plotly를 이용한 인터랙티브 2D 산점도
+    # 각 점의 색상은 방금 계산한 rgb_color를 사용합니다.
+    p1 <- plot_ly(
+      data = df,
+      x = ~x, 
+      y = ~y,
+      type = 'scatter',
+      mode = 'markers',
+      marker = list(
+        color = ~rgb_color,  # 점의 색상을 rgb_color 컬럼으로 지정
+        size = 10,
+        opacity = 0.8
+      ),
+      # 마우스를 올렸을 때 보일 정보
+      hoverinfo = 'text',
+      text = ~paste("X:", round(x, 2), "<br>Y:", round(y, 2), 
+                    "<br>F1 (Red):", round(f1, 3), 
+                    "<br>F2 (Green):", round(f2, 3),
+                    "<br>F3 (Blue):", round(f3, 3))
+    ) %>% layout(
+      title = "Spatial Composition Plot (RGB Color Blending)",
+      xaxis = list(title = "X coordinate"),
+      yaxis = list(title = "Y coordinate")
+    )
+    
+    # 3. (선택) 색상 해석을 돕는 삼각 좌표계(Ternary Plot) 범례 추가
+    # 이 범례를 통해 어떤 색이 어떤 비율 조합을 의미하는지 알 수 있습니다.
+    p_legend <- plot_ly(
+      type = 'scatterternary',
+      mode = 'markers',
+      a = ~f1, b = ~f2, c = ~f3,  # a,b,c 축에 각 feature 매핑
+      data = df,
+      marker = list(
+        color = ~rgb_color,
+        size = 5
+      )
+    ) %>% layout(
+      title = "Color Legend",
+      ternary = list(
+        aaxis = list(title = 'F1 (Red)'),
+        baxis = list(title = 'F2 (Green)'),
+        caxis = list(title = 'F3 (Blue)')
+      )
+    )
+    
+    # 두 플롯을 나란히 표시
+    subplot(p1, p_legend, nrows = 1, widths = c(0.7, 0.3))
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  # function 1 ----
+  #' 3D 공간 조성 데이터 시각화
+  #'
+  #' 공간 좌표(x, y)와 여러 feature 비율을 3D 산점도로 시각화합니다.
+  #'
+  #' @param data 데이터프레임
+  #' @param x_col x 좌표에 해당하는 컬럼 이름 (문자열)
+  #' @param y_col y 좌표에 해당하는 컬럼 이름 (문자열)
+  #' @param feature_cols 조성 비율을 나타내는 컬럼 이름들의 벡터 (문자열)
+  #' @param colors 각 feature에 할당할 색상 벡터. `feature_cols`와 길이가 같아야 합니다.
+  #' @param title 플롯의 제목
+  #' @param marker_size 점의 크기
+  #' @param marker_opacity 점의 투명도
+  #'
+  #' @importFrom tidyr pivot_longer
+  #' @importFrom plotly plot_ly layout
+  #'
+  plot_spatial_composition_3d <- function(data, 
+                                          x_col = "x", 
+                                          y_col = "y", 
+                                          feature_cols, 
+                                          colors = c("red", "green", "blue"),
+                                          title = "3D Spatial Composition Plot",
+                                          marker_size = 4,
+                                          marker_opacity = 0.7) {
+    
+    if(FALSE){
+      # 함수 호출
+      plot_3d <- plot_spatial_composition_3d(
+        data = df,
+        x_col = "x",
+        y_col = "y",
+        feature_cols = c("f1", "f2", "f3"),
+        colors = c("#FF5733", "#33FF57", "#3357FF"), # 색상 변경
+        title = "My Custom 3D Composition Plot"
+      )
+      
+      # 플롯 출력
+      plot_3d
+    }
+    
+    
+    # 필수 패키지 확인
+    if (!requireNamespace("tidyr", quietly = TRUE) || !requireNamespace("plotly", quietly = TRUE)) {
+      stop("이 함수를 사용하려면 'tidyr'와 'plotly' 패키지가 필요합니다.")
+    }
+    
+    # 데이터를 long 형태로 변환
+    data_long <- tidyr::pivot_longer(
+      data, 
+      cols = all_of(feature_cols), 
+      names_to = "feature", 
+      values_to = "value"
+    )
+    
+    # 3D 산점도 생성
+    p <- plotly::plot_ly(
+      data = data_long,
+      x = ~get(x_col), 
+      y = ~get(y_col),
+      z = ~value,
+      color = ~feature,
+      colors = colors,
+      type = 'scatter3d',
+      mode = 'markers',
+      marker = list(size = marker_size, opacity = marker_opacity)
+    ) %>% plotly::layout(
+      title = title,
+      scene = list(
+        xaxis = list(title = x_col),
+        yaxis = list(title = y_col),
+        zaxis = list(title = "Proportion")
+      )
+    )
+    
+    return(p)
+  }
+  
+  
+  
+  
+  
+  
+  
+  # function 2 -----
+  # Faceted 2D 공간 조성 데이터 시각화
+  #
+  # 각 feature의 공간적 분포를 별도의 2D 플롯으로 나누어 보여줍니다.
+  #
+  
+  
+  #' @param data 데이터프레임
+  #' @param x_col x 좌표에 해당하는 컬럼 이름 (문자열)
+  #' @param y_col y 좌표에 해당하는 컬럼 이름 (문자열)
+  #' @param feature_cols 조성 비율을 나타내는 컬럼 이름들의 벡터 (문자열)
+  #' @param color_scale ggplot2에서 사용할 연속형 색상 스케일 (예: "viridis", "plasma")
+  #' @param title 플롯의 전체 제목
+  #' @param interactive TRUE일 경우 ggplotly를 이용해 인터랙티브 플롯을 반환, FALSE일 경우 ggplot 객체 반환
+  #'
+  #' @return interactive=TRUE일 경우 plotly 객체, FALSE일 경우 ggplot 객체
+  #' @importFrom tidyr pivot_longer
+  #' @importFrom ggplot2 ggplot aes geom_point facet_wrap scale_color_viridis_c labs theme_minimal
+  #' @importFrom plotly ggplotly
+  #'
+  plot_spatial_composition_facet <- function(data, 
+                                             x_col = "x",
+                                             y_col = "y",
+                                             feature_cols,
+                                             color_scale = "viridis",
+                                             title = "Faceted Spatial Composition Plots",
+                                             interactive = TRUE) {
+    
+    if(FALSE){
+      
+      # 함수 호출 (인터랙티브 버전)
+      plot_facet_interactive <- plot_spatial_composition_facet(
+        data = df,
+        feature_cols = c("f1", "f2", "f3"),
+        color_scale = "plasma", # 색상 스케일 변경
+        interactive = TRUE
+      )
+      
+      # 플롯 출력
+      plot_facet_interactive
+      
+      
+      # 함수 호출 (정적 ggplot 버전)
+      plot_facet_static <- plot_spatial_composition_facet(
+        data = df,
+        feature_cols = c("f1", "f2", "f3"),
+        interactive = FALSE
+      )
+      
+      # 플롯 출력 (논문, 보고서 등에 사용하기 좋음)
+      plot_facet_static
+      
+    }
+    
+    
+    # 필수 패키지 확인
+    if (!requireNamespace("tidyr", quietly = TRUE) || !requireNamespace("ggplot2", quietly = TRUE)) {
+      stop("이 함수를 사용하려면 'tidyr'와 'ggplot2' 패키지가 필요합니다.")
+    }
+    
+    # 데이터를 long 형태로 변환
+    data_long <- tidyr::pivot_longer(
+      data, 
+      cols = all_of(feature_cols), 
+      names_to = "feature", 
+      values_to = "value"
+    )
+    
+    # ggplot으로 기본 플롯 생성
+    p <- ggplot2::ggplot(data_long, ggplot2::aes(x = .data[[x_col]], y = .data[[y_col]], color = .data[["value"]])) +
+      ggplot2::geom_point(alpha = 0.8) +
+      ggplot2::facet_wrap(~feature) +
+      ggplot2::scale_color_viridis_c(option = color_scale) +
+      ggplot2::labs(title = title, color = "Proportion", x = x_col, y = y_col) +
+      ggplot2::theme_minimal()
+    
+    if (interactive) {
+      if (!requireNamespace("plotly", quietly = TRUE)) {
+        stop("인터랙티브 플롯을 위해서는 'plotly' 패키지가 필요합니다.")
+      }
+      return(plotly::ggplotly(p))
+    } else {
+      return(p)
+    }
+  }
+  
+  
+}
